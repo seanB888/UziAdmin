@@ -11,6 +11,10 @@ struct SignIn: View {
     @State private var username = ""
     @State private var password = ""
     @State private var showPassword = false
+    @State private var errorMessage: String?
+    @State private var showingAlert = false // To control alert visibility
+    @State private var alertMessage = "" // To store the error message message error messages
+    @State private var isAuthenticated = false
     
     var body: some View {
         VStack {
@@ -62,9 +66,9 @@ struct SignIn: View {
                 .background(.white)
                 .padding(.horizontal)
                 
-                // MARK: - Submit button
+                // MARK: - Sign in button
                 Button {
-                    
+                    signInUser()
                 } label: {
                     Text("Sign In")
                         .font(.title)
@@ -74,7 +78,16 @@ struct SignIn: View {
                         .background(.black)
                         .padding(.horizontal)
                 }
+                .alert(isPresented: $showingAlert) {
+                    Alert(title: Text("Sign In Failed"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                }
             }
+            
+            if let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+            }
+
             
             Spacer()
             
@@ -85,6 +98,20 @@ struct SignIn: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(.black)
         .background(Color.theme.accent)
+        
+    }
+    
+    func signInUser() {
+        AuthManager.shared.signIn(email: username, password: password) { success, message in
+            if success {
+                DispatchQueue.main.async {
+                    self.isAuthenticated = true
+                }
+            } else {
+                self.alertMessage = message ?? "An unknown error occurred"
+                self.showingAlert = true
+            }
+        }
     }
 }
 

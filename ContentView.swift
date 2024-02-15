@@ -8,19 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var authManager: AuthManager
+    
     var body: some View {
         NavigationStack {
-            VStack {
-                Home()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .foregroundStyle(.black)
-            .background(Color.theme.background)
+            if authManager.isUserAuthenticated {
+                VStack {
+                    Home()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .foregroundStyle(.black)
+                .background(Color.theme.background)
             .navigationBarBackButtonHidden(true)
+                
+            } else {
+                SignIn()
+            }
         }
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(AuthManager())
 }

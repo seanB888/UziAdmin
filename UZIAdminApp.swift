@@ -9,10 +9,15 @@ import SwiftUI
 
 @main
 struct UZIAdminApp: App {
+    @StateObject private var authManager = AuthManager.shared
     
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(authManager)
+                .onAppear {
+                    authManager.checkUserAuthentication()
+                }
         }
     }
 }
