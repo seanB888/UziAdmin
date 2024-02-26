@@ -6,10 +6,16 @@
 //
 
 import SwiftUI
+import Firebase
 
 @main
 struct UZIAdminApp: App {
     @StateObject private var authManager = AuthManager.shared
+    
+    init() {
+        // Configure Firebase
+        FirebaseApp.configure()
+    }
     
     var body: some Scene {
         WindowGroup {

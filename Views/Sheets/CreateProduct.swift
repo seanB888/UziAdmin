@@ -8,18 +8,32 @@
 import SwiftUI
 
 struct CreateProduct: View {
+    @Environment(\.presentationMode) var goBack
+    @EnvironmentObject private var viewModel: ProductViewModel
+    @ObservedObject private var categoryListModel = CategoryListModel()
+    @ObservedObject private var colorListModel = ColorListModel()
+    @ObservedObject private var photoAccessHelper = PhotoAccessHelper()
+    @State private var selectedCategoryIndex = 0
     @State private var showingCamera = false
     @State private var image: UIImage?
-    @Environment(\.presentationMode) var goBack
     @State var saveproduct = false
     // Text Feilds
-    @State var productTitle = ""
-    @State var productDescription = ""
-    @State private var firstCategory = "Tees"
-    var productCategory = ["Tees", "Bracelets", "Helemets", "Stickers"]
-    @ObservedObject private var photoAccessHelper = PhotoAccessHelper()
+    @State private var productTitle = ""
+    @State private var productDescription = ""
+    @State private var productPrice = 0.0
+    @State private var productImage = [""]
     @State private var showingImagePicker = false
     @State private var selectedImage: UIImage?
+    @State private var productSize = [""]
+    @State private var selection: Set<String> = []
+    // Assuming you're using a simple array of String for colors
+    @State private var selectedColors: Set<String> = []
+    @State private var selectedCategory: String? = nil
+    
+    private var colorOptions = ["AccentColor", "ArmyGreen", "UZiBlue", "UZiDarkGray", "UZiMustard", "UZiNavy", "UZiRed", "UZiYellow", "UZiBrown", "UZiPurple", "UZiStoneWash"]
+    
+    private var categoryOptions = ["Tees", "Hoodies", "Bracelets", "Helmets", "Stickers", "Art"]
+    
     
     
     var body: some View {
@@ -34,9 +48,12 @@ struct CreateProduct: View {
                 
                 Spacer()
                 
+                // MARK: -Save product
                 Button {
                     withAnimation(.easeInOut) {
                         saveproduct = true
+                        let selectedCategory = categoryListModel.categories[selectedCategoryIndex]
+                        // viewModel.addProduct()
                     }
                 } label: {
                     ZStack {
@@ -64,7 +81,6 @@ struct CreateProduct: View {
                 .fontWeight(.bold)
             
             ScrollView {
-                
                 VStack(spacing: 10) {
                     if let selectedImage = selectedImage {
                         Image(uiImage: selectedImage)
@@ -126,6 +142,44 @@ struct CreateProduct: View {
                         }
                     }
                     
+                    
+                    // MARK: - Category picker...
+                    Section(header: Text("Category").fontWeight(.semibold)) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(categoryOptions, id: \.self) { category in
+                                    CategoryView(categoryName: category, isSelected: selectedCategory == category)
+                                        .onTapGesture {
+                                            selectedCategory = category
+                                        }
+                                }
+                            }
+                        }
+                    }
+                    
+                    .padding(.horizontal)
+                    
+                    // MARK: - Color selection
+                    Section(header: Text("Color").fontWeight(.semibold)) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(colorOptions, id: \.self) { colorName in
+                                    ColorView(colorName: colorName, isSelected: selectedColors.contains(colorName))
+                                        .onTapGesture {
+                                            if selectedColors.contains(colorName) {
+                                                selectedColors.remove(colorName)
+                                            } else {
+                                                selectedColors.insert(colorName)
+                                            }
+                                        }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    
+                    // Product Title
                     CustomTextField(labelText: "Product Title", textFieldText: "Lion of Judah", text: $productTitle)
                     
                     // Product description...
@@ -143,23 +197,8 @@ struct CreateProduct: View {
                             )
                     }
                     .padding(.horizontal)
-                    
-                    // Category picker...
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Choose a Category")
-                            .font(.callout).fontWeight(.semibold)
-                            .foregroundStyle(Color.theme.uziDarkGray)
-                        VStack {
-                            Picker(selection: $firstCategory, label: Text("")) {
-                                ForEach(productCategory, id: \.self) { name in
-                                    Row(name: name)
-                                }
-                            }
-                            .pickerStyle(.wheel)
-                            Text("Selected: \(firstCategory)")
-                        }
-                    }
-                    .padding(.horizontal)
+                    // Product Cost
+                    CustomTextField(labelText: "Product Price", textFieldText: "Product Price", text: $productTitle)
                     Spacer()
                 }
                 
@@ -202,5 +241,31 @@ fileprivate struct Row: View {
         HStack {
             Text(name)
         }
+    }
+}
+
+struct ColorView: View {
+    var colorName: String
+    var isSelected: Bool
+    let colorTheme = Color.theme
+    
+    var body: some View {
+        Text(colorName)
+            .padding()
+            .foregroundStyle(isSelected ? .white : .black)
+            .background(isSelected ? colorTheme.color(from: colorName) : Color.clear)
+            .cornerRadius(10)
+    }
+}
+
+struct CategoryView: View {
+    var categoryName: String
+    var isSelected: Bool
+    
+    var body: some View {
+        Text(categoryName)
+            .padding()
+            .background(isSelected ? Color.theme.accent : Color.clear)
+            .cornerRadius(10)
     }
 }
