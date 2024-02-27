@@ -208,6 +208,7 @@ struct CreateProduct: View {
         .foregroundStyle(.black)
         .navigationBarBackButtonHidden(true)
         .background(Color.theme.background)
+        .environment(\.colorScheme, .light)
     }
 }
 

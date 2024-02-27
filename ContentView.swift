@@ -12,14 +12,14 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            if authManager.isUserAuthenticated {
+            if !authManager.isUserAuthenticated {
                 VStack {
                     Home()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .foregroundStyle(.black)
                 .background(Color.theme.background)
-            .navigationBarBackButtonHidden(true)
+                .navigationBarBackButtonHidden(true)
                 
             } else {
                 SignIn()

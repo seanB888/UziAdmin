@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Product {
+extension ProductModel {
     // Converts a Firestore document to a Product object
     init?(documentData: [String: Any]) {
         guard let id = documentData["id"] as? String,
